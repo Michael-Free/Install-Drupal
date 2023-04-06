@@ -128,7 +128,35 @@ fi
 ## enter the logic down here:
 
 
-echo "Passwords:"
-echo "Root MySQL password: $root_mysql_pass"
-echo "Drupal SQL password: $drupal_sql_pass"
-
+# echo "Passwords:"
+# echo "Root MySQL password: $root_mysql_pass"
+# echo "Drupal SQL password: $drupal_sql_pass"
+# 
+# echo "Installing LAMP Server"
+# echo
+# echo "Installing software requirements via APT..."
+# install_reqs >> $log_file 2>&1
+# check_output $? "INSTALLING APT REQUIREMENTS"
+# echo
+# echo "Configuring firewall.."
+# config_firewall >> $log_file 2>&1
+# echo
+# echo "Creating configuration files for Apache Webserver..."
+# create_configs >> $log_file
+# check_output $? "CREATING CONFIGURATION FILES FOR APACHE"
+# echo
+# echo "Finalizing changes to Apache Webserver..."
+# finalize_apache >> $log_file 2>&1
+# check_output $? "FINALIZING CHANGES TO APACHE"
+# echo
+# echo "Going through MySQL secure setup..."
+# config_mysql >> $log_file 2>&1
+# check_output $? "CONFIGURING SECURE MYSQL SETUP"
+# sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
+# sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
+# echo
+# echo "Installing Drupal 9..."
+# install_drupal >> $log_file 2>&1
+# check_output $? "INSTALLING DRUPAL 9"
+# echo "YOUR MYSQL PASSWORD IS: $mysql_pass"
+# echo "YOUR DRUPAL MYSQL PASSWORD IS: $drupal_sql_pass"
