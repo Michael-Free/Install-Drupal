@@ -9,7 +9,7 @@ sites_dir=/etc/apache2/sites-available
 sites_file=$domain.conf
 apache_logs=/var/log/apache2
 mysql_pass=$(date +%s | sha256sum | base64 | head -c 32 ;)
-drupal_download=https://www.drupal.org/download-latest/tar.gz
+drupal_download="https://ftp.drupal.org/files/projects/drupal-9.0.0.tar.gz"
 drupal_tar=/tmp/drupal.tar.gz
 
 check_output () {

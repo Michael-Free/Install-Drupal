@@ -1,4 +1,66 @@
-# Install Drupal 9 on Ubuntu Server 20.04
+# Install Drupal 9 on Ubuntu 20.04 LTS 
+
+This Bash script automates the installation of a LAMP stack, configuration of firewall, secure MySQL setup, and the installation of Drupal 9 on Ubuntu 20.04 LTS.
+
+## Prerequisites
+
+- Ubuntu 20.04 LTS
+- Administrative privileges on the Ubuntu system
+- Internet connection
+
+## Usage
+
+1. Open a terminal window on your Ubuntu system.
+
+2. Download the script using curl:
+
+```
+curl https://raw.githubusercontent.com/username/repository/main/install-drupal.sh --output install-drupal.sh
+```
+
+3. Make the script executable:
+
+```
+chmod +x install-drupal.sh
+```
+
+4. Change the domain variable to the domain of the Drupal website:
+
+```
+domain=your.domain.com
+```
+
+5. Follow the on-screen instructions to complete the installation.
+
+Run the script:
+
+```
+sudo ./install-drupal.sh
+```
+
+If any errors are encountered, make sure to view the logfile for more in-depth information. This script will store everything in `/var/log/install-drupal.log`.
+
+## What does the script do?
+
+The script performs the following steps:
+
+- Installs Apache2, MySQL Server, PHP and other dependencies using APT.
+- Configures the firewall to allow HTTP, HTTPS, and OpenSSH traffic.
+- Creates a virtual host configuration file for the Apache web server.
+- Finalizes changes to Apache web server by enabling modules and reloading the server.
+- Secures MySQL installation, deletes default users and databases, and creates a new database for Drupal.
+- Downloads and installs the latest version of Drupal 9.
+- Outputs the MySQL password and Drupal MySQL password for future reference.
+
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+This project is licensed under the MIT License.
+
 
 This is a simple automated BASH script to install Drupal 9 on Ubuntu 20.04.  This could work on other Ubuntu/Debian versions, but it has not been tested.
 
@@ -45,3 +107,4 @@ sudo rm -rvf /var/www/<DOMAIN NAME HERE>/index.html
 If any errors are encountered, make sure to view the logfile for more in-depth information. This script will store everything in `/var/log/install-drupal.log`.
 
 PLEASE NOTE: No passwords will be stored in the logfile, so be sure to store your passwords in a secure place.
+

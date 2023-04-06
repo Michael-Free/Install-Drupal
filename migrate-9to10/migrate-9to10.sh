@@ -5,6 +5,18 @@ DRUPAL9_BACKUP=drupal9_backup.zip
 DRUPAL10_ROOT=/var/www/mydomain.com
 DRUPAL10_SQL_PASS=random_password
 
+# Check if running as root
+if [[ $(id -u) -ne 0 ]]; then
+    echo "This script must be run as root."
+    exit 1
+fi
+
+# Check if rsync, zip, and unzip are installed
+if ! command -v rsync &> /dev/null || ! command -v zip &> /dev/null || ! command -v unzip &> /dev/null; then
+    echo "rsync, zip, and/or unzip are not installed. Please install them and try again."
+    exit 1
+fi
+
 # Check if the backup file exists
 if [ ! -f $DRUPAL9_BACKUP ]; then
     echo "Error: backup file $DRUPAL9_BACKUP not found."
