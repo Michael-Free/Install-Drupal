@@ -5,6 +5,30 @@ DRUPAL9_BACKUP=drupal9_backup.zip
 DRUPAL10_ROOT=/var/www/mydomain.com
 DRUPAL10_SQL_PASS=random_password
 
+check_output () {
+    echo "placeholder"
+}
+
+check_reqs () {
+    echo "placeholder"
+}
+
+copy_files () {
+    echo "placeholder"
+}
+
+import_database () {
+    echo "placeholdeR"
+}
+
+update_settings () {
+    echo "placeholder"
+}
+
+check_settings () {
+    echo "placeholdeR"
+}
+
 # Check if running as root
 if [[ $(id -u) -ne 0 ]]; then
     echo "This script must be run as root."
