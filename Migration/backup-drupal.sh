@@ -6,8 +6,7 @@ site_dir="/var/www/$domain"
 backup_dir="/var/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 db_user="root"
-db_pass="your_mysql_password_here" ## pass this as a value or ask for input on this
-db_name="mydatabase"
+db_name="drupal"
 log_file="/var/log/backup-drupal.log"
 
 check_output () {
@@ -35,17 +34,20 @@ if [ ! -d "$backup_dir" ]; then
   check_output $? "Creating backup directory."
 fi
 
+read -sp "SQL Password: " db_pass
+
 # Backup database
 mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_dir/$current_date-db.sql"
-check_output $? "Backing up sql data base"
+check_output $? "Backing up SQL database"
 
 # Backup website files
 cd "$site_dir" &&
-zip -r "$backup_dir/$current_date-site.zip" . 
+zip -r "$backup_dir/$current_date-site.zip" .
 check_output $? "Backing up website files"
 
 # Zip the backup files
-cd "$backup_dir" && zip -r "$current_date-backup.zip" .
+cd "$backup_dir" &&
+zip -r "$current_date-backup.zip" .
 check_output $? "zipping the backup files"
 
 # Remove temporary files
@@ -54,4 +56,3 @@ check_output $? "Removing temporary files"
 
 # Print message to console
 echo "Backup completed and stored in $backup_dir/$current_date-backup.zip"
-

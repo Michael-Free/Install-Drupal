@@ -12,7 +12,7 @@ mysql_pass=$(date +%s | sha256sum | base64 | head -c 32 ;)
 drupal_download="https://ftp.drupal.org/files/projects/drupal-9.0.0.tar.gz"
 drupal_tar=/tmp/drupal.tar.gz
 
-check_output () {
+check_output() {
     if [ $1 -eq 0 ]; then
         echo "SUCCESS: $1 - $2 "
         echo "SUCCESS: $1 - $2 " >> $log_file
@@ -22,11 +22,11 @@ check_output () {
         echo "ERROR: $1 - $2" >> $log_file
         sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
         sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
-        exit
+        exit 1
     fi
 }
 
-install_reqs () {
+install_reqs() {
     apt install wget apache2 mysql-server php libapache2-mod-php php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} ufw -y
 }
 

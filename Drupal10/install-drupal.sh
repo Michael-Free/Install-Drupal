@@ -10,10 +10,12 @@ sites_file="$domain.conf"
 apache_logs="/var/log/apache2"
 root_mysql_pass="$(openssl rand -base64 12)"
 drupal_sql_pass="$(openssl rand -base64 12)"
-drupal_zip="/path/to/drupal-10.0.0.zip"
+drupal_download="https://ftp.drupal.org/files/projects/drupal-10.0.0.zip"
+drupal_zip="/tmp/drupal-10.0.0.zip"
 
-check_output () {
+check_output() {
     if [ "$1" -eq 0 ]; then
+        echo "SUCCESS: $1 - $2 "
         echo "SUCCESS: $1 - $2 " >> $log_file
         return 0
     else
@@ -25,15 +27,15 @@ check_output () {
     fi
 }
 
-install_reqs () {
+install_reqs() {
   # Install required packages
   apt update && 
   apt upgrade -y &&
-  apt install -y apache2 php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw unzip composer &&
+  apt install -y wget apache2 php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw unzip composer &&
   composer global require drush/drush
 }
 
-create_configs () {
+create_configs() {
     mkdir -v $web_dir &&
     touch $web_dir/index.html &&
     cat <<EOF > $web_dir/index.html
@@ -62,7 +64,7 @@ EOF
 EOF
 }
 
-finalize_apache () {
+finalize_apache() {
   # Enable virtual host and modules, disable default site and event module
   a2ensite $domain &&
   a2dissite 000-default &&
@@ -74,7 +76,7 @@ finalize_apache () {
   systemctl reload apache2
 }
 
-config_firewall () {
+config_firewall() {
   # Configure firewall
   ufw allow 80 &&
   ufw allow 443 &&
@@ -82,7 +84,7 @@ config_firewall () {
   ufw enable
 }
 
-config_mysql () {
+config_mysql() {
   mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$root_mysql_pass';
             DELETE FROM mysql.user WHERE User='';
             DROP USER IF EXISTS ''@'$(hostname)';
@@ -93,18 +95,18 @@ config_mysql () {
             FLUSH PRIVILEGES;"
 }
 
-install_drupal () {
+install_drupal() {
   mkdir -p "$web_dir" &&
   chown -R www-data:www-data "$web_dir" &&
   chmod -R 755 "$web_dir" &&
+  wget $drupal_download -O $drupal_zip &&
   unzip -q "$drupal_zip" -d "$web_dir" &&
   touch "$web_dir/sites/default/settings.php" &&
   chmod 666 "$web_dir/sites/default/settings.php" &&
   mkdir -p "$web_dir/sites/default/files" &&
-  chmod 777 "$web_dir/sites/default/files"  
+  chmod 777 "$web_dir/sites/default/files"
 }
 
-#########
 echo "SUCCESS: RUN $date " >> $log_file
 
 if [ "$EUID" -ne 0 ]
