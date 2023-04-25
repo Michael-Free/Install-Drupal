@@ -19,7 +19,7 @@ check_output () {
     else
         echo "ERROR: $1 PLEASE CHECK LOGFILE - $2"
         echo "ERROR: $1 - $2" >> $log_file
-        sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
+        sed -i "s/$root_mysql_pass/PasswordNotStoredInLogfile/g" $log_file
         sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
         exit
     fi
@@ -29,7 +29,8 @@ install_reqs () {
   # Install required packages
   apt update && 
   apt upgrade -y &&
-  apt install -y apache2 php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw unzip composer
+  apt install -y apache2 php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw unzip composer &&
+  composer global require drush/drush
 }
 
 create_configs () {
@@ -100,16 +101,10 @@ install_drupal () {
   touch "$web_dir/sites/default/settings.php" &&
   chmod 666 "$web_dir/sites/default/settings.php" &&
   mkdir -p "$web_dir/sites/default/files" &&
-  chmod 777 "$web_dir/sites/default/files" &&
-  composer global require drush/drush
+  chmod 777 "$web_dir/sites/default/files"  
 }
 
-drush_composer () {
-  # Install Composer and Drush
-  ## may not need this area
-  apt install -y composer
-}
-
+#########
 echo "SUCCESS: RUN $date " >> $log_file
 
 if [ "$EUID" -ne 0 ]
@@ -124,32 +119,31 @@ if [[ $(lsb_release -rs) != "22.04" ]];
   exit 1
 fi
 
-echo "Installing LAMP Server"
-echo
-echo "Installing software requirements via APT..."
+echo "Installing LAMP Server..."
+
 install_reqs >> $log_file 2>&1
 check_output $? "INSTALLING APT REQUIREMENTS"
-echo
-echo "Configuring firewall.."
+
 config_firewall >> $log_file 2>&1
-echo
-echo "Creating configuration files for Apache Webserver..."
-create_configs >> $log_file
+check_output $? "CONFIGURING FIREWALL"
+
+create_configs >> $log_file 2>&1
 check_output $? "CREATING CONFIGURATION FILES FOR APACHE"
-echo
-echo "Finalizing changes to Apache Webserver..."
+
 finalize_apache >> $log_file 2>&1
 check_output $? "FINALIZING CHANGES TO APACHE"
-echo
-echo "Going through MySQL secure setup..."
+
 config_mysql >> $log_file 2>&1
 check_output $? "CONFIGURING SECURE MYSQL SETUP"
+
 sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
+check_output $? "REMOVING MYSQL PASSWORD FROM LOG FILE"
+
 sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
-echo
-echo "Installing Drupal 10..."
+check_output $? "REMOVING DRUPAL PASSWORD FROM LOG FILE"
+
 install_drupal >> $log_file 2>&1
 check_output $? "INSTALLING DRUPAL 10"
-echo
+
 echo "YOUR MYSQL PASSWORD IS: $mysql_pass"
 echo "YOUR DRUPAL MYSQL PASSWORD IS: $drupal_sql_pass"

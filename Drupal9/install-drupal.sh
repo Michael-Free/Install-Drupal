@@ -14,6 +14,7 @@ drupal_tar=/tmp/drupal.tar.gz
 
 check_output () {
     if [ $1 -eq 0 ]; then
+        echo "SUCCESS: $1 - $2 "
         echo "SUCCESS: $1 - $2 " >> $log_file
         return 0
     else
