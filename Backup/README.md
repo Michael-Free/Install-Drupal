@@ -3,6 +3,8 @@
 This is a shell script that can be used to backup a Drupal website's files and database.
 Prerequisites
 
+## Requirements
+
 To run this script, you must have the following:
 
 - A Linux or Unix-like operating system with Bash installed
