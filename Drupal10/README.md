@@ -12,7 +12,7 @@ This bash script installs a LAMP server and Drupal 10 on Ubuntu 22.04. It also c
 sudo bash install-drupal10.sh
 ```
 
-    Follow the prompts.
+Follow the prompts.
 
 # How to modify for different domain names and directories
 
