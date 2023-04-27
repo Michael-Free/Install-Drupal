@@ -57,12 +57,6 @@ check_output $? "Rsyncing apache sites directory..." >> $log_file
 rsync -avz --exclude '.htaccess' --exclude 'sites/default/files' $drupal_temp/ $drupal_root/
 check_output $? "Rsyncing drupal root directory..." >> $log_file
 
-# Check if the files copy was successful
-if [ $? -ne 0 ]; then
-    echo "Error: failed to copy the Drupal 9 files to the Drupal 10 root directory."
-    exit 1
-fi
-
 ## Create a new Drupal 10 database and user
 #mysql -u root -p <<EOF
 #CREATE DATABASE drupal10;

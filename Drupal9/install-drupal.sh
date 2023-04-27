@@ -13,7 +13,7 @@ drupal_download="https://ftp.drupal.org/files/projects/drupal-9.0.0.tar.gz"
 drupal_tar=/tmp/drupal.tar.gz
 
 check_output() {
-    if [ $1 -eq 0 ]; then
+    if [ "$1" -eq 0 ]; then
         echo "SUCCESS: $1 - $2 "
         echo "SUCCESS: $1 - $2 " >> $log_file
         return 0
