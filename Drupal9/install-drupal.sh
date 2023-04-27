@@ -75,7 +75,7 @@ finalize_apache() {
 config_firewall() {
     ufw allow http &&
     ufw allow https &&
-    ufw allow OpenSSH &&
+    # ufw allow OpenSSH &&
     ufw enable
 }
 

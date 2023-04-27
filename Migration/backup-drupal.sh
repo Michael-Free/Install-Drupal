@@ -34,7 +34,7 @@ if [ ! -d "$backup_dir" ]; then
   check_output $? "Creating backup directory."
 fi
 
-read -sp "SQL Password: " db_pass
+read -rsp "SQL Password: " db_pass
 
 # Backup database
 mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_dir/$current_date-db.sql"
