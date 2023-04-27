@@ -40,6 +40,7 @@ sites_file="$domain.conf"
 ``
 
 You would also need to update the DNS records for your domain to point to your server's IP address.
-License
+
+# License
 
 This script is released under the MIT License.
