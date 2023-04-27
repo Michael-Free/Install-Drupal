@@ -70,7 +70,7 @@ finalize_apache() {
   a2dissite 000-default &&
   a2dismod mpm_event &&
   a2enmod mpm_prefork &&
-  a2enmod php$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+") &&
+  a2enmod php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
   a2enmod rewrite &&
   apache2ctl configtest &&
   systemctl reload apache2
@@ -138,7 +138,7 @@ check_output $? "FINALIZING CHANGES TO APACHE"
 config_mysql >> $log_file 2>&1
 check_output $? "CONFIGURING SECURE MYSQL SETUP"
 
-sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
+sed -i "s/$root_mysql_pass/PasswordNotStoredInLogfile/g" $log_file
 check_output $? "REMOVING MYSQL PASSWORD FROM LOG FILE"
 
 sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
@@ -147,5 +147,5 @@ check_output $? "REMOVING DRUPAL PASSWORD FROM LOG FILE"
 install_drupal >> $log_file 2>&1
 check_output $? "INSTALLING DRUPAL 10"
 
-echo "YOUR MYSQL PASSWORD IS: $mysql_pass"
+echo "YOUR MYSQL PASSWORD IS: $root_mysql_pass"
 echo "YOUR DRUPAL MYSQL PASSWORD IS: $drupal_sql_pass"
