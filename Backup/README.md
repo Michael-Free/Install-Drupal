@@ -23,9 +23,10 @@ To run this script, you must have the following:
     - **log_file**: The path to the log file where the script will record its output
 4. Save the script and exit the text editor.
 5. Open a terminal or SSH session and navigate to the directory where the script is located.
-6. Run the script with root privileges by entering the following command:
+6. Run the script with root privileges by entering the following commands:
     ```
-    sudo bash backup-drupal.sh
+    chmod +x backup-drupal.sh
+    sudo ./backup-drupal.sh
     ```
 7. When prompted, enter the password for the MySQL user specified in the db_user variable.
 8. The script will run and create a backup of your website's files and database.
