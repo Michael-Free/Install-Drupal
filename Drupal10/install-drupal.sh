@@ -10,8 +10,8 @@ sites_file="$domain.conf"
 apache_logs="/var/log/apache2"
 root_mysql_pass="$(openssl rand -base64 12)"
 drupal_sql_pass="$(openssl rand -base64 12)"
-drupal_download="https://ftp.drupal.org/files/projects/drupal-10.0.0.zip"
-drupal_zip="/tmp/drupal-10.0.0.zip"
+drupal_download="https://ftp.drupal.org/files/projects/drupal-10.0.0.tar.gz"
+drupal_tar="/tmp/drupal.tar.gz"
 
 check_output() {
     if [ "$1" -eq 0 ]; then
@@ -31,8 +31,8 @@ install_reqs() {
   # Install required packages
   apt update && 
   apt upgrade -y &&
-  apt install -y wget apache2 php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw unzip composer &&
-  composer global require drush/drush
+  apt install -y wget apache2 php php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} openssl ufw composer mysql-server
+  #composer global require drush/drush
 }
 
 create_configs() {
@@ -70,6 +70,7 @@ finalize_apache() {
   a2dissite 000-default &&
   a2dismod mpm_event &&
   a2enmod mpm_prefork &&
+  apt install libapache2-mod-php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
   a2enmod php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
   a2enmod rewrite &&
   apache2ctl configtest &&
@@ -99,8 +100,9 @@ install_drupal() {
   mkdir -p "$web_dir" &&
   chown -R www-data:www-data "$web_dir" &&
   chmod -R 755 "$web_dir" &&
-  wget $drupal_download -O $drupal_zip &&
-  unzip -q "$drupal_zip" -d "$web_dir" &&
+  wget $drupal_download -O $drupal_tar &&
+  tar -xf $drupal_tar &&
+  mv -v $(tar -tf $drupal_tar | grep -o '^[^/]\+' | sort -u)/* $web_dir &&
   touch "$web_dir/sites/default/settings.php" &&
   chmod 666 "$web_dir/sites/default/settings.php" &&
   mkdir -p "$web_dir/sites/default/files" &&
@@ -138,11 +140,11 @@ check_output $? "FINALIZING CHANGES TO APACHE"
 config_mysql >> $log_file 2>&1
 check_output $? "CONFIGURING SECURE MYSQL SETUP"
 
-sed -i "s/$root_mysql_pass/PasswordNotStoredInLogfile/g" $log_file
-check_output $? "REMOVING MYSQL PASSWORD FROM LOG FILE"
+#sed -i "s/$root_mysql_pass/PasswordNotStoredInLogfile/g" $log_file
+#check_output $? "REMOVING MYSQL PASSWORD FROM LOG FILE"
 
-sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
-check_output $? "REMOVING DRUPAL PASSWORD FROM LOG FILE"
+#sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
+#check_output $? "REMOVING DRUPAL PASSWORD FROM LOG FILE"
 
 install_drupal >> $log_file 2>&1
 check_output $? "INSTALLING DRUPAL 10"

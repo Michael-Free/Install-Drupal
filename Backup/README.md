@@ -39,3 +39,7 @@ To run this script, you must have the following:
 If you need to modify the script, you can do so by opening it in a text editor and making the necessary changes to the variables or commands.
 
 Note that modifying the script incorrectly could cause it to fail or produce unexpected results. It is recommended to make a backup of the original script before making any modifications.
+
+# License
+
+This script is released under the MIT License.
