@@ -21,7 +21,7 @@ check_output () {
     fi
 }
 
-# Check Administation Privs
+# Check Administration Privs
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   echo "ERROR: ADMIN PRIVILEGES" >> $log_file
@@ -42,17 +42,17 @@ check_output $? "Backing up SQL database"
 
 # Backup website files
 cd "$site_dir" &&
-zip -r "$backup_dir/$current_date-site.zip" .
+tar czf "$backup_dir/$current_date-site.tar.gz" .
 check_output $? "Backing up website files"
 
-# Zip the backup files
+# Tar the backup files
 cd "$backup_dir" &&
-zip -r "$current_date-backup.zip" .
-check_output $? "zipping the backup files"
+tar czf "$current_date-backup.tar.gz" "$current_date-db.sql" "$current_date-site.tar.gz"
+check_output $? "tarring the backup files"
 
 # Remove temporary files
-rm "$backup_dir/$current_date-db.sql" "$backup_dir/$current_date-site.zip"
+rm "$backup_dir/$current_date-db.sql" "$backup_dir/$current_date-site.tar.gz"
 check_output $? "Removing temporary files"
 
 # Print message to console
-echo "Backup completed and stored in $backup_dir/$current_date-backup.zip"
+echo "Backup completed and stored in $backup_dir/$current_date-backup.tar.gz"
