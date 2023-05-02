@@ -6,7 +6,8 @@ site_dir="/var/www/$domain"
 backup_dir="/var/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 db_user="root"
-db_name="drupal"
+# Array of DB Names ("Database1" "Database2")
+db_names=("drupal")
 log_file="/var/log/backup-drupal.log"
 
 check_output () {
@@ -36,9 +37,13 @@ fi
 
 read -rsp "SQL Password: " db_pass
 
-# Backup database
-mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_dir/$current_date-db.sql"
-check_output $? "Backing up SQL database"
+# Loop through each database name
+for db_name in "${db_names[@]}"
+do
+  # Perform a SQL database dump of each DB
+  mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_dir/$current_date-$db_name-db.sql"
+  check_output $? "Backing up SQL database: $db_name"
+done
 
 # Backup website files
 cd "$site_dir" &&
@@ -47,12 +52,26 @@ check_output $? "Backing up website files"
 
 # Tar the backup files
 cd "$backup_dir" &&
-tar czf "$current_date-backup.tar.gz" "$current_date-db.sql" "$current_date-site.tar.gz"
-check_output $? "tarring the backup files"
+
+# Get an array of all files in the directory
+backup_files=(*)
+
+# Loop through each file in the array and write it on one line
+for file in "${backup_files[@]}"
+do
+  echo "${file}"
+# Pipe out the output to a tar command
+done | tar -czvf "$current_date-backup.tar.gz" -T -
+check_output $? "Tarring the backup files"
+
 
 # Remove temporary files
-rm "$backup_dir/$current_date-db.sql" "$backup_dir/$current_date-site.tar.gz"
-check_output $? "Removing temporary files"
+for file in "${backup_files[@]}"
+do
+  rm "${file}"
+  check_output $? "Removing temporary file - ${file}"
+done
 
 # Print message to console
 echo "Backup completed and stored in $backup_dir/$current_date-backup.tar.gz"
+#ZjE2MDBkOGViNDkyMjU4NTA3ZGFhOGFl
