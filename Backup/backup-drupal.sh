@@ -5,10 +5,12 @@ domain="mydomain.com"
 site_dir="/var/www/$domain"
 backup_dir="/var/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
+log_file="/var/log/backup-drupal.log"
+sites_available=""
+certs_directory=""
 db_user="root"
 # Array of DB Names ("Database1" "Database2")
 db_names=("drupal")
-log_file="/var/log/backup-drupal.log"
 
 check_output () {
     if [ "$1" -eq 0 ]; then
@@ -64,7 +66,6 @@ do
 done | tar -czvf "$current_date-backup.tar.gz" -T -
 check_output $? "Tarring the backup files"
 
-
 # Remove temporary files
 for file in "${backup_files[@]}"
 do
@@ -74,4 +75,3 @@ done
 
 # Print message to console
 echo "Backup completed and stored in $backup_dir/$current_date-backup.tar.gz"
-#ZjE2MDBkOGViNDkyMjU4NTA3ZGFhOGFl
