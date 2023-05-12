@@ -6,8 +6,9 @@ site_dir="/var/www/$domain"
 backup_dir="/var/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 log_file="/var/log/backup-drupal.log"
-sites_available=""
-certs_directory=""
+sites_available="/etc/apache2/sites-available/$domain.conf"
+# Array of certs to back up ("/path/to/cert1" "/path/to/cert2")
+certs_directory=("/etc/ssl/certs/ssl_certificate.crt" "/etc/ssl/private/server.key" "/etc/ssl/certs/IntermediateCA.crt")
 db_user="root"
 # Array of DB Names ("Database1" "Database2")
 db_names=("drupal")
@@ -52,8 +53,19 @@ cd "$site_dir" &&
 tar czf "$backup_dir/$current_date-site.tar.gz" .
 check_output $? "Backing up website files"
 
-# Tar the backup files
+# Change to backup directory
 cd "$backup_dir" &&
+
+# Backup Certs
+for cert in "${certs_directory[@]}"
+do
+  # Copy each cert to the backup directory
+  cp "${cert}" .
+  check_output $? "Copying ${cert}"
+done
+
+# Backup sites-available
+cp "${sites_available}" .
 
 # Get an array of all files in the directory
 backup_files=(*)
@@ -69,7 +81,7 @@ check_output $? "Tarring the backup files"
 # Remove temporary files
 for file in "${backup_files[@]}"
 do
-  rm "${file}"
+  rm -vf "${file}"
   check_output $? "Removing temporary file - ${file}"
 done
 
