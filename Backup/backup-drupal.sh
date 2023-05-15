@@ -16,6 +16,7 @@ db_user="root"
 db_names=("drupal")
 # mysql database conf
 db_conf="/etc/mysql/mysql.conf.d/mysqld.cnf"
+
 check_output () {
     if [ "$1" -eq 0 ]; then
         echo "SUCCESS: $1 - $2 " >> $log_file
@@ -47,9 +48,25 @@ if [ ! -d "$archive_dir" ]; then
   check_output $? "Creating archive directory."
 fi
 
+# Check if $sites_available file exists
+if [ ! -f "$sites_available" ]; then
+  echo "File '$sites_available' does not exist." >> $log_file
+  exit 1
+fi
 
-## loop through each files like, certs, sites availabe, db_conf, 
-## if they dont exists. exit.
+# Check if $db_conf file exists
+if [ ! -f "$db_conf" ]; then
+  echo "File '$db_conf' does not exist." >> $log_file
+  exit 1
+fi
+
+# Check if each file in $certs_dir exists
+for cert_file in "${certs_dir[@]}"; do
+  if [ ! -f "$cert_file" ]; then
+    echo "File '$cert_file' does not exist." >> $log_file
+    exit 1
+  fi
+done
 
 read -rsp "SQL Password: " db_pass
 
