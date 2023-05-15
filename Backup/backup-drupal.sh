@@ -84,9 +84,6 @@ for db_name in "${db_names[@]}"; do
   fi
 done
 
-# All databases exist
-echo "All databases exist."
-
 # Loop through each database name
 for db_name in "${db_names[@]}"
 do
@@ -113,9 +110,11 @@ done
 
 # Backup sites-available
 cp "$sites_available" .
-check_output $? "${sites_available}"
+check_output $? "Copying ${sites_available}"
 
-# back up mysql cnf
+# Back up mysqld.cnf
+cp "$db_conf" . 
+check_output $? "Copying ${db_conf}"
 
 # Get an array of all files in the directory
 backup_files=(*)
@@ -137,6 +136,8 @@ done
 
 ## move archive up archive directory directory
 
-## delete temp dir 
+## delete temp dir
+
+
 # Print message to console
 echo "Backup completed and stored in $backup_tmp/$current_date-backup.tar.gz"
