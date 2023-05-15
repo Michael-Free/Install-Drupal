@@ -1,4 +1,5 @@
 #!/bin/bash
+## need logic for figuring out which version of php there is for a2enmod php
 
 domain=your.domain.com
 
@@ -66,7 +67,7 @@ finalize_apache() {
     a2dissite 000-default &&
     a2dismod mpm_event &&
     a2enmod mpm_prefork &&
-    a2enmod php7.4 &&
+    a2enmod php8.1 &&
     a2enmod rewrite &&
     apache2ctl configtest &&  
     systemctl reload apache2

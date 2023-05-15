@@ -3,7 +3,9 @@
 # Variables
 domain="mydomain.com"
 site_dir="/var/www/$domain"
-backup_dir="/var/backup"
+backup_tmp="/tmp/drupal_backup"
+## archive directory?
+archive_dir="/root/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 log_file="/var/log/backup-drupal.log"
 sites_available="/etc/apache2/sites-available/$domain.conf"
@@ -12,7 +14,8 @@ certs_directory=("/etc/ssl/certs/ssl_certificate.crt" "/etc/ssl/private/server.k
 db_user="root"
 # Array of DB Names ("Database1" "Database2")
 db_names=("drupal")
-
+# mysql database conf
+db_conf="/etc/mysql/mysql.conf.d/mysqld.cnf"
 check_output () {
     if [ "$1" -eq 0 ]; then
         echo "SUCCESS: $1 - $2 " >> $log_file
@@ -33,28 +36,41 @@ if [ "$EUID" -ne 0 ]
 fi
 
 # Create backup directory if it doesn't exist
-if [ ! -d "$backup_dir" ]; then
-  mkdir "$backup_dir"
-  check_output $? "Creating backup directory."
+if [ ! -d "$backup_tmp" ]; then
+  mkdir "$backup_tmp"
+  check_output $? "Creating temporary backup directory."
 fi
 
+# Create archive directory if it doesn't exist
+if [ ! -d "$archive_dir" ]; then
+  mkdir "$archive_dir"
+  check_output $? "Creating archive directory."
+fi
+
+
+## loop through each files like, certs, sites availabe, db_conf, 
+## if they dont exists. exit.
+
 read -rsp "SQL Password: " db_pass
+
+## loop through each database name
+## check if they exists or not.
 
 # Loop through each database name
 for db_name in "${db_names[@]}"
 do
   # Perform a SQL database dump of each DB
-  mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_dir/$current_date-$db_name-db.sql"
+  mysqldump -u "$db_user" -p"$db_pass" "$db_name" > "$backup_tmp/$current_date-$db_name-db.sql"
   check_output $? "Backing up SQL database: $db_name"
 done
 
 # Backup website files
 cd "$site_dir" &&
-tar czf "$backup_dir/$current_date-site.tar.gz" .
+tar czf "$backup_tmp/$current_date-site.tar.gz" .
 check_output $? "Backing up website files"
 
 # Change to backup directory
-cd "$backup_dir" &&
+cd "$backup_tmp" &&
 
 # Backup Certs
 for cert in "${certs_directory[@]}"
@@ -65,7 +81,10 @@ do
 done
 
 # Backup sites-available
-cp "${sites_available}" .
+cp "$sites_available" .
+check_output $? "${sites_available}"
+
+# back up mysql cnf
 
 # Get an array of all files in the directory
 backup_files=(*)
@@ -85,5 +104,7 @@ do
   check_output $? "Removing temporary file - ${file}"
 done
 
+## move archive up archive directory directory
+
 # Print message to console
-echo "Backup completed and stored in $backup_dir/$current_date-backup.tar.gz"
+echo "Backup completed and stored in $backup_tmp/$current_date-backup.tar.gz"
