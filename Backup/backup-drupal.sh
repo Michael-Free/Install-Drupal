@@ -149,9 +149,9 @@ done
 
 ## move archive up archive directory directory
 mv "$current_date-backup.tar.gz" "$archive_dir"
+check_output $? "Moving backup to ${archive_dir}"
 
-## delete temp dir
-
+cd "$archive_dir" &&
 
 # Print message to console
-echo "Backup completed and stored in $backup_tmp/$current_date-backup.tar.gz"
+echo "Backup completed and stored in $archive_dir/$current_date-backup.tar.gz"
