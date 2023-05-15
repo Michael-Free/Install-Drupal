@@ -13,8 +13,10 @@ certs_directory=("/etc/ssl/certs/ssl_certificate.crt" "/etc/ssl/private/server.k
 db_user="root"
 # Array of DB Names ("Database1" "Database2")
 db_names=("drupal")
-# mysql database conf
+# mysql conf
 db_conf="/etc/mysql/mysql.conf.d/mysqld.cnf"
+# Php conf
+php_conf="/etc/php/8.1/apache2/php.ini"
 
 check_output () {
     if [ "$1" -eq 0 ]; then
@@ -70,6 +72,13 @@ for cert_file in "${certs_dir[@]}"; do
   fi
 done
 
+# Check if php conf exists
+if [ ! -f "$php_conf" ]; then
+  echo "File '$php_conf' does not exist."
+  echo "File '$php_conf' does not exist." >> $log_file
+  exit 1
+fi
+
 read -rsp "SQL Password: " db_pass
 
 # Loop through each database name
@@ -115,6 +124,10 @@ check_output $? "Copying ${sites_available}"
 # Back up mysqld.cnf
 cp "$db_conf" . 
 check_output $? "Copying ${db_conf}"
+
+# Back up php conf
+cp "$php_conf" . 
+check_output $? "Copying ${php_conf}"
 
 # Get an array of all files in the directory
 backup_files=(*)
