@@ -1,19 +1,21 @@
 #!/bin/bash
+## need logic for figuring out which version of php there is for a2enmod php
 
 domain=your.domain.com
 
 date=$(date)
-log_file=/var/log/install-drupal.log
+log_file=/var/log/install-drupal9.log
 web_dir=/var/www/$domain
 sites_dir=/etc/apache2/sites-available
 sites_file=$domain.conf
 apache_logs=/var/log/apache2
 mysql_pass=$(date +%s | sha256sum | base64 | head -c 32 ;)
-drupal_download=https://www.drupal.org/download-latest/tar.gz
+drupal_download="https://ftp.drupal.org/files/projects/drupal-9.0.0.tar.gz"
 drupal_tar=/tmp/drupal.tar.gz
 
-check_output () {
-    if [ $1 -eq 0 ]; then
+check_output() {
+    if [ "$1" -eq 0 ]; then
+        echo "SUCCESS: $1 - $2 "
         echo "SUCCESS: $1 - $2 " >> $log_file
         return 0
     else
@@ -21,11 +23,11 @@ check_output () {
         echo "ERROR: $1 - $2" >> $log_file
         sed -i "s/$mysql_pass/PasswordNotStoredInLogfile/g" $log_file
         sed -i "s/$drupal_sql_pass/PasswordNotStoredInLogfile/g" $log_file
-        exit
+        exit 1
     fi
 }
 
-install_reqs () {
+install_reqs() {
     apt install wget apache2 mysql-server php libapache2-mod-php php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc} ufw -y
 }
 
@@ -65,7 +67,8 @@ finalize_apache() {
     a2dissite 000-default &&
     a2dismod mpm_event &&
     a2enmod mpm_prefork &&
-    a2enmod php7.4 &&
+    apt install libapache2-mod-php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
+    a2enmod php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
     a2enmod rewrite &&
     apache2ctl configtest &&  
     systemctl reload apache2
@@ -74,7 +77,7 @@ finalize_apache() {
 config_firewall() {
     ufw allow http &&
     ufw allow https &&
-    ufw allow OpenSSH &&
+    # ufw allow OpenSSH &&
     ufw enable
 }
 
