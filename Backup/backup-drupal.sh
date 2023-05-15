@@ -148,6 +148,7 @@ do
 done
 
 ## move archive up archive directory directory
+mv "$current_date-backup.tar.gz" "$archive_dir"
 
 ## delete temp dir
 
