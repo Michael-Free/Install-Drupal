@@ -4,7 +4,6 @@
 domain="mydomain.com"
 site_dir="/var/www/$domain"
 backup_tmp="/tmp/drupal_backup"
-## archive directory?
 archive_dir="/root/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 log_file="/var/log/backup-drupal.log"
@@ -50,12 +49,14 @@ fi
 
 # Check if $sites_available file exists
 if [ ! -f "$sites_available" ]; then
+  echo "File '$sites_available' does not exist."
   echo "File '$sites_available' does not exist." >> $log_file
   exit 1
 fi
 
 # Check if $db_conf file exists
 if [ ! -f "$db_conf" ]; then
+  echo "File '$db_conf' does not exist."
   echo "File '$db_conf' does not exist." >> $log_file
   exit 1
 fi
@@ -63,6 +64,7 @@ fi
 # Check if each file in $certs_dir exists
 for cert_file in "${certs_dir[@]}"; do
   if [ ! -f "$cert_file" ]; then
+    echo "File '$cert_file' does not exist."
     echo "File '$cert_file' does not exist." >> $log_file
     exit 1
   fi
@@ -70,8 +72,20 @@ done
 
 read -rsp "SQL Password: " db_pass
 
-## loop through each database name
-## check if they exists or not.
+# Loop through each database name
+for db_name in "${db_names[@]}"; do
+  # Check if the database exists
+  db_exists=$(mysql -u "$db_user" -p"$db_pass" -e "SHOW DATABASES LIKE '$db_name'" | grep "$db_name")
+
+  if [ -z "$db_exists" ]; then
+    echo "Database '$db_name' does not exist."
+    echo "Database '$db_name' does not exist." >> $log_file
+    exit 1
+  fi
+done
+
+# All databases exist
+echo "All databases exist."
 
 # Loop through each database name
 for db_name in "${db_names[@]}"
@@ -123,5 +137,6 @@ done
 
 ## move archive up archive directory directory
 
+## delete temp dir 
 # Print message to console
 echo "Backup completed and stored in $backup_tmp/$current_date-backup.tar.gz"
