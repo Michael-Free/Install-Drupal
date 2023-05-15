@@ -67,7 +67,8 @@ finalize_apache() {
     a2dissite 000-default &&
     a2dismod mpm_event &&
     a2enmod mpm_prefork &&
-    a2enmod php8.1 &&
+    apt install libapache2-mod-php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
+    a2enmod php"$(php -v | grep -oP "PHP \K[0-9]+\.[0-9]+")" &&
     a2enmod rewrite &&
     apache2ctl configtest &&  
     systemctl reload apache2
