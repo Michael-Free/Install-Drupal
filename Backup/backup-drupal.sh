@@ -8,15 +8,23 @@ archive_dir="/root/backup"
 current_date=$(date +%Y-%m-%d-%H%M%S)
 log_file="/var/log/backup-drupal.log"
 sites_available="/etc/apache2/sites-available/$domain.conf"
-# Array of certs to back up ("/path/to/cert1" "/path/to/cert2")
-certs_directory=("/etc/ssl/certs/ssl_certificate.crt" "/etc/ssl/private/server.key" "/etc/ssl/certs/IntermediateCA.crt")
+# Array of other files like certs to back up ("/path/to/cert1" "/path/to/cert2")
+other_files=(
+  "/etc/ssl/certs/ssl_certificate.crt" 
+  "/etc/ssl/private/server.key" 
+  "/etc/ssl/certs/IntermediateCA.crt"
+  "/etc/php/8.1/apache2/php.ini"
+  "/etc/mysql/mysql.conf.d/mysqld.cnf"
+  )
 db_user="root"
 # Array of DB Names ("Database1" "Database2")
-db_names=("drupal")
+db_names=(
+  "drupal"
+  )
 # mysql conf
-db_conf="/etc/mysql/mysql.conf.d/mysqld.cnf"
+#db_conf="/etc/mysql/mysql.conf.d/mysqld.cnf"
 # Php conf
-php_conf="/etc/php/8.1/apache2/php.ini"
+#php_conf="/etc/php/8.1/apache2/php.ini"
 
 check_output () {
     if [ "$1" -eq 0 ]; then
@@ -56,28 +64,14 @@ if [ ! -f "$sites_available" ]; then
   exit 1
 fi
 
-# Check if $db_conf file exists
-if [ ! -f "$db_conf" ]; then
-  echo "File '$db_conf' does not exist."
-  echo "File '$db_conf' does not exist." >> $log_file
-  exit 1
-fi
-
-# Check if each file in $certs_dir exists
-for cert_file in "${certs_dir[@]}"; do
-  if [ ! -f "$cert_file" ]; then
-    echo "File '$cert_file' does not exist."
-    echo "File '$cert_file' does not exist." >> $log_file
+# Check if each file in $other_files exists
+for other_file in "${other_files[@]}"; do
+  if [ ! -f "$other_file" ]; then
+    echo "File '$other_file' does not exist."
+    echo "File '$other_file' does not exist." >> $log_file
     exit 1
   fi
 done
-
-# Check if php conf exists
-if [ ! -f "$php_conf" ]; then
-  echo "File '$php_conf' does not exist."
-  echo "File '$php_conf' does not exist." >> $log_file
-  exit 1
-fi
 
 read -rsp "SQL Password: " db_pass
 
@@ -109,8 +103,8 @@ check_output $? "Backing up website files"
 # Change to backup directory
 cd "$backup_tmp" &&
 
-# Backup Certs
-for cert in "${certs_directory[@]}"
+# Backup Certs and Other files
+for cert in "${other_files[@]}"
 do
   # Copy each cert to the backup directory
   cp "${cert}" .
@@ -120,14 +114,6 @@ done
 # Backup sites-available
 cp "$sites_available" .
 check_output $? "Copying ${sites_available}"
-
-# Back up mysqld.cnf
-cp "$db_conf" . 
-check_output $? "Copying ${db_conf}"
-
-# Back up php conf
-cp "$php_conf" . 
-check_output $? "Copying ${php_conf}"
 
 # Get an array of all files in the directory
 backup_files=(*)
